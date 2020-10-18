@@ -51,12 +51,15 @@ exercise_interval=30
 # Default interval for resting
 rest_interval=10
 
+# Default interval for exercise preparation
+prepare_time=0
+
 # Default workout music
 music=
 
 # Parse user options
 #
-while getopts ":i:t:r:m:" opt; do
+while getopts ":i:t:r:m:p:" opt; do
   case $opt in
 
 	# Read in a user-supplied file with exercises.
@@ -86,6 +89,14 @@ while getopts ":i:t:r:m:" opt; do
     r)
 		if [[ "$OPTARG" =~ ^[0-9]+$ ]] ; then
 			rest_interval=${OPTARG}
+		else
+			die "Invalid parameter for exercise interval: ${OPTARG}. It should be an integer."
+		fi
+    	;;
+    # Set user-supplied preparation time interval
+    p)
+		if [[ "$OPTARG" =~ ^[0-9]+$ ]] ; then
+			prepare_time=${OPTARG}
 		else
 			die "Invalid parameter for exercise interval: ${OPTARG}. It should be an integer."
 		fi
@@ -122,7 +133,14 @@ for (( i = 0; i < ${NUM_EXERCISES}; i++ )); do
 		sleep $rest_interval
 	fi
 
-	# Do the excersize
+	# Prepare exercise
+	#
+	if [[ $prepare_time -ne 0 ]]; then
+		say "Prepare for $exercise."
+		sleep $prepare_time
+	fi
+
+	# Do the exercise
 	#
 	say "Ok, $exercise for $exercise_interval seconds, Go!"
 	if [[ -n "$music" ]]; then
