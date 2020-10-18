@@ -16,6 +16,12 @@
 #    # and do each for 45 seconds, resting for 20
 #    ./workout.sh -i my-exercises.txt -t 45 -r 20
 #
+#    # Supply a file with your own exercises, 1 per line
+#    # and do each for 45 seconds, resting for 20
+#    # specifying the workout music from Spotify
+#    # Note: need to install the shpofity script
+#    ./workout.sh -i my-exercises.txt -t 45 -r 20 -m "Heart of Courage" -
+#
 
 # Custom die function.
 #
@@ -45,10 +51,12 @@ exercise_interval=30
 # Default interval for resting
 rest_interval=10
 
+# Default workout music
+music=
 
 # Parse user options
 #
-while getopts ":i:t:r:" opt; do
+while getopts ":i:t:r:m:" opt; do
   case $opt in
 
 	# Read in a user-supplied file with exercises.
@@ -68,7 +76,7 @@ while getopts ":i:t:r:" opt; do
     # Set user-supplied exercise interval
     t)
 		if [[ "$OPTARG" =~ ^[0-9]+$ ]] ; then
-			exercise_interval=${OPTARG}		
+			exercise_interval=${OPTARG}
 		else
 			die "Invalid parameter for exercise interval: ${OPTARG}. It should be an integer."
 		fi
@@ -77,12 +85,15 @@ while getopts ":i:t:r:" opt; do
     # Set user-supplied rest interval
     r)
 		if [[ "$OPTARG" =~ ^[0-9]+$ ]] ; then
-			rest_interval=${OPTARG}		
+			rest_interval=${OPTARG}
 		else
 			die "Invalid parameter for exercise interval: ${OPTARG}. It should be an integer."
 		fi
     	;;
-
+    # Set workout music
+    m)
+		music=${OPTARG}
+		;;
     \?)
 		echo "Invalid option: -$OPTARG" >&2
 		exit 1
@@ -102,8 +113,8 @@ for (( i = 0; i < ${NUM_EXERCISES}; i++ )); do
 
 	exercise=${EXERCISES[$i]}
 	if [[ $i == 0 ]]; then
-		say "Ready? We're going to do ${NUM_EXERCISES} different 
-		exercises for $exercise_interval seconds each, starting 
+		say "Ready? We're going to do ${NUM_EXERCISES} different
+		exercises for $exercise_interval seconds each, starting
 		with $exercise in 5 seconds."
 		sleep 5
 	else
@@ -114,6 +125,9 @@ for (( i = 0; i < ${NUM_EXERCISES}; i++ )); do
 	# Do the excersize
 	#
 	say "Ok, $exercise for $exercise_interval seconds, Go!"
+	if [[ -n "$music" ]]; then
+	  spotify play $music
+	fi
 	sleep $exercise_interval
 
 done
